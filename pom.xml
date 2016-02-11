@@ -35,13 +35,30 @@
     <properties>
         <maven.compiler.source>1.5</maven.compiler.source>
         <maven.compiler.target>1.5</maven.compiler.target>
-        <camel.version>2.16.1</camel.version>
+        <camel.version>2.16.2</camel.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core</artifactId>
             <version>${camel.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.igor-suhorukov</groupId>
+            <artifactId>mvn-classloader</artifactId>
+            <version>1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
