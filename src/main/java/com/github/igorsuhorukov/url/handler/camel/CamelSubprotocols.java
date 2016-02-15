@@ -185,6 +185,7 @@ public class CamelSubprotocols {
         mapping.put("xmpp","camel-xmpp");
         mapping.put("yammer","camel-yammer");
         mapping.put("zookeeper","camel-zookeeper");
+        mapping.put("webcam","/io.rhiot:camel-webcam:LATEST");
         PROTOCOL_MAPPING = Collections.unmodifiableMap(mapping);
     }
 }

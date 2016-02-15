@@ -1,8 +1,6 @@
 package com.github.igorsuhorukov.url.handler.camel;
 
-import com.github.igorsuhorukov.smreed.dropship.MavenClassLoader;
 import com.github.igorsuhorukov.url.handler.camel.classloader.ClassLoaderUtils;
-import com.github.igorsuhorukov.url.handler.camel.classloader.ModuleClassLoader;
 import org.apache.camel.*;
 import org.apache.camel.impl.DefaultCamelContext;
 
@@ -12,10 +10,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class CamelStreamHandlerFactory implements java.net.URLStreamHandlerFactory{
@@ -73,26 +67,60 @@ public class CamelStreamHandlerFactory implements java.net.URLStreamHandlerFacto
 
     private String getArtifact(String protocol) {
         String module = CamelSubprotocols.PROTOCOL_MAPPING.get(protocol);
-        return String.format("org.apache.camel:%s:2.16.2", module);
+        if(module!=null){
+            return module.startsWith("/") ? module.substring(1) : String.format("org.apache.camel:%s:2.16.2", module);
+        } else {
+            throw new IllegalArgumentException(String.format("module for protocol '%s' not found", protocol));
+        }
     }
 
 
     private byte[] getPayload(String path) throws Exception {
         CamelContext camelContext = new DefaultCamelContext();
-        TypeConverter typeConverter = camelContext.getTypeConverter();
-        Endpoint endpoint = camelContext.getEndpoint(path);
-        PollingConsumer pollingConsumer = endpoint.createPollingConsumer();
+        camelContext.start();
+        loadComponent(path, camelContext);
         byte[] exchangePayload;
         try {
+            Endpoint endpoint = camelContext.getEndpoint(path);
+            endpoint.start();
+            try {
+                exchangePayload = extractContent(camelContext.getTypeConverter(), endpoint);
+            } finally {
+                endpoint.stop();
+            }
+        } finally {
+            camelContext.stop();
+        }
+        return exchangePayload;
+    }
+
+    private void loadComponent(String path, CamelContext camelContext) {
+        String[] protocol = path.split(":");
+        if(protocol.length > 0) camelContext.getComponent(protocol[0], true);
+    }
+
+    private byte[] extractContent(TypeConverter typeConverter, Endpoint endpoint) throws Exception {
+        byte[] exchangePayload;PollingConsumer pollingConsumer = endpoint.createPollingConsumer();
+        pollingConsumer.start();
+        try {
             Exchange exchange = pollingConsumer.receive(TimeUnit.SECONDS.toMillis(DEFAULT_DURATION));
-            Message exchangeOut = exchange.getOut();
-            Object exchangeOutBody = exchangeOut.getBody();
-            exchangePayload = typeConverter.convertTo(byte[].class, exchangeOutBody);
+            exchangePayload = extractContent(typeConverter, exchange);
         } finally {
             try {
                 pollingConsumer.stop();
             } catch (Exception ignore) {
             }
+        }
+        return exchangePayload;
+    }
+
+    private byte[] extractContent(TypeConverter typeConverter, Exchange exchange) {
+        byte[] exchangePayload;Message exchangeOut = exchange.getOut();
+        Object exchangeOutBody = exchangeOut.getBody();
+        if(exchangeOutBody!=null) {
+            exchangePayload = typeConverter.convertTo(byte[].class, exchangeOutBody);
+        } else {
+            exchangePayload = typeConverter.convertTo(byte[].class, exchange.getIn().getBody());
         }
         return exchangePayload;
     }
