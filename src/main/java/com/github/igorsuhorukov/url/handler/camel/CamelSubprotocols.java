@@ -186,6 +186,25 @@ public class CamelSubprotocols {
         mapping.put("yammer","camel-yammer");
         mapping.put("zookeeper","camel-zookeeper");
         mapping.put("webcam","/io.rhiot:camel-webcam:LATEST");
+
+        mapping.put("file","camel-core");
+        mapping.put("bean","camel-core");
+        mapping.put("browse","camel-core");
+        mapping.put("class","camel-core");
+        mapping.put("controlbus","camel-core");
+        mapping.put("dataformat","camel-core");
+        mapping.put("dataset","camel-core");
+        mapping.put("direct","camel-core");
+        mapping.put("direct-vm","camel-core");
+        mapping.put("language","camel-core");
+        mapping.put("properties","camel-core");
+        mapping.put("ref","camel-core");
+        mapping.put("rest","camel-core");
+        mapping.put("scheduler","camel-core");
+        mapping.put("timer","camel-core");
+        mapping.put("validation","camel-core");
+        mapping.put("vm","camel-core");
+        mapping.put("xslt","camel-core");
         PROTOCOL_MAPPING = Collections.unmodifiableMap(mapping);
     }
 }

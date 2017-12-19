@@ -10,16 +10,15 @@ public class ClassLoaderUtils {
 
     public static ClassLoader loadModule(String moduleName) {
         try {
-            List<URL> artifactUrlsCollection = MavenClassLoader.usingCentralRepo().getArtifactUrlsCollection(moduleName, null);
+            String mavenRepository = System.getProperty("url.protocol.handler.mvn-repo");
+            List<URL> artifactUrlsCollection = mavenRepository == null|| mavenRepository.isEmpty() ?
+                    MavenClassLoader.usingCentralRepo().getArtifactUrlsCollection(moduleName, null):
+                    MavenClassLoader.using(mavenRepository).getArtifactUrlsCollection(moduleName, null);
             URL[] classpath = artifactUrlsCollection.toArray(new URL[artifactUrlsCollection.size()]);
             ClassLoader camelCoreClassLoader = CamelContext.class.getClassLoader();
             return new ModuleClassLoader(classpath, camelCoreClassLoader);
         } catch (Exception e) {
             throw new IllegalArgumentException(e);
         }
-    }
-
-    public static void restoreCtxClassloader(ClassLoader contextClassLoader) {
-        Thread.currentThread().setContextClassLoader(contextClassLoader);
     }
 }
