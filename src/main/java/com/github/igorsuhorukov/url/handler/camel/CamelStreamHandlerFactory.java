@@ -10,15 +10,14 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLStreamHandler;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class CamelStreamHandlerFactory implements java.net.URLStreamHandlerFactory{
 
     public static final String CAMEL_PROTOCOL = "camel";
     private static final int DEFAULT_DURATION = Integer.parseInt(System.getProperty("camelComponentTimeout","180"));
-
-    public CamelStreamHandlerFactory() throws IOException {
-    }
+    private ConcurrentHashMap<String, ClassLoader> camelModules = new ConcurrentHashMap<>();
 
     public URLStreamHandler createURLStreamHandler(String protocol) {
         if(CAMEL_PROTOCOL.equals(protocol)){
@@ -35,7 +34,9 @@ public class CamelStreamHandlerFactory implements java.net.URLStreamHandlerFacto
                             try {
                                 String path = getPath(url);
                                 String protocolArtifact = getArtifact(getProtocol(path));
-                                ClassLoader contextClassLoader = ClassLoaderUtils.loadModule(protocolArtifact);
+                                ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+                                ClassLoader moduleClassLoader = getModuleClassloader(protocolArtifact);
+                                ClassLoaderUtils.restoreCtxClassloader(moduleClassLoader);
                                 try {
                                     return new ByteArrayInputStream(getPayload(path));
                                 } finally {
@@ -65,10 +66,14 @@ public class CamelStreamHandlerFactory implements java.net.URLStreamHandlerFacto
         return null;
     }
 
+    private ClassLoader getModuleClassloader(String protocolArtifact) throws Exception {
+        return camelModules.computeIfAbsent(protocolArtifact, ClassLoaderUtils::loadModule);
+    }
+
     private String getArtifact(String protocol) {
         String module = CamelSubprotocols.PROTOCOL_MAPPING.get(protocol);
         if(module!=null){
-            return module.startsWith("/") ? module.substring(1) : String.format("org.apache.camel:%s:2.16.2", module);
+            return module.startsWith("/") ? module.substring(1) : String.format("org.apache.camel:%s:2.20.0", module);
         } else {
             throw new IllegalArgumentException(String.format("module for protocol '%s' not found", protocol));
         }
@@ -100,7 +105,8 @@ public class CamelStreamHandlerFactory implements java.net.URLStreamHandlerFacto
     }
 
     private byte[] extractContent(TypeConverter typeConverter, Endpoint endpoint) throws Exception {
-        byte[] exchangePayload;PollingConsumer pollingConsumer = endpoint.createPollingConsumer();
+        byte[] exchangePayload;
+        PollingConsumer pollingConsumer = endpoint.createPollingConsumer();
         pollingConsumer.start();
         try {
             Exchange exchange = pollingConsumer.receive(TimeUnit.SECONDS.toMillis(DEFAULT_DURATION));
@@ -115,7 +121,8 @@ public class CamelStreamHandlerFactory implements java.net.URLStreamHandlerFacto
     }
 
     private byte[] extractContent(TypeConverter typeConverter, Exchange exchange) {
-        byte[] exchangePayload;Message exchangeOut = exchange.getOut();
+        byte[] exchangePayload;
+        Message exchangeOut = exchange.getOut();
         Object exchangeOutBody = exchangeOut.getBody();
         if(exchangeOutBody!=null) {
             exchangePayload = typeConverter.convertTo(byte[].class, exchangeOutBody);
