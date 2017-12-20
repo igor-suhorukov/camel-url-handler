@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 public class Handler extends URLStreamHandler {
 
     private static final int DEFAULT_DURATION = Integer.parseInt(System.getProperty("camelComponentTimeout","180"));
+    private HandleRequest<InputStream> camelStreamHandler = new HandleRequest<>();
 
     private InputStream extractContent(TypeConverter typeConverter, Endpoint endpoint){
 
@@ -19,19 +20,21 @@ public class Handler extends URLStreamHandler {
             pollingConsumer = endpoint.createPollingConsumer();
             pollingConsumer.start();
             Exchange exchange = pollingConsumer.receive(TimeUnit.SECONDS.toMillis(DEFAULT_DURATION));
-            return new ByteArrayInputStream(extractContent(typeConverter, exchange));
+            return extractContent(typeConverter, exchange);
         } catch (Exception e) {
             throw new RuntimeException(e);
         } finally {
             try {
-                pollingConsumer.stop();
+                if(pollingConsumer!=null) {
+                    pollingConsumer.stop();
+                }
             } catch (Exception ignore) {
                 //ignore
             }
         }
     }
 
-    private byte[] extractContent(TypeConverter typeConverter, Exchange exchange) {
+    private InputStream extractContent(TypeConverter typeConverter, Exchange exchange) {
         byte[] exchangePayload;
         Message exchangeOut = exchange.getOut();
         Object exchangeOutBody = exchangeOut.getBody();
@@ -40,7 +43,7 @@ public class Handler extends URLStreamHandler {
         } else {
             exchangePayload = typeConverter.convertTo(byte[].class, exchange.getIn().getBody());
         }
-        return exchangePayload;
+        return new ByteArrayInputStream(exchangePayload);
     }
 
 
@@ -49,13 +52,13 @@ public class Handler extends URLStreamHandler {
         return new URLConnection(url) {
             @Override
             public void connect() throws IOException {
-                //do nothing on connect invocation
+                //do nothing on connection event
             }
 
             @Override
             public InputStream getInputStream() throws IOException {
-                return new HandleRequest<>((camelContext, endpoint) ->
-                        extractContent(camelContext.getTypeConverter(), endpoint)).handleRequest(url);
+                return camelStreamHandler.handleRequest(url, (camelContext, endpoint) ->
+                        extractContent(camelContext.getTypeConverter(), endpoint));
             }
 
             @Override
@@ -63,10 +66,19 @@ public class Handler extends URLStreamHandler {
                 return new ByteArrayOutputStream(){
                     @Override
                     public void close() throws IOException {
-                        new HandleRequest<>((camelContext, endpoint) -> {
-                            camelContext.createProducerTemplate().sendBody(endpoint, toByteArray());
+                        camelStreamHandler.handleRequest(url, (camelContext, endpoint) -> {
+                            ProducerTemplate producerTemplate = camelContext.createProducerTemplate();
+                            try {
+                                producerTemplate.sendBody(endpoint, toByteArray());
+                            } finally {
+                                try {
+                                    producerTemplate.stop();
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
+                            }
                             return null;
-                        }).handleRequest(url);
+                        });
                     }
                 };
             }

@@ -11,14 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class HandleRequest<T> {
 
-    private CamelAction<T> camelAction;
     private ConcurrentHashMap<String, ClassLoader> camelModules = new ConcurrentHashMap<>();
 
-    public HandleRequest(CamelAction<T> camelAction) {
-        this.camelAction = camelAction;
-    }
-
-    public T handleRequest(URL url) throws IOException {
+    public T handleRequest(URL url, CamelAction<T> camelAction) throws IOException {
         try {
             String path = getPath(url);
             String protocolArtifact = getArtifact(getProtocol(path));
