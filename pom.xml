@@ -8,7 +8,7 @@
     </parent>
     <groupId>com.github.igor-suhorukov</groupId>
     <artifactId>camel-url-handler</artifactId>
-    <version>2.20.1.2-SNAPSHOT</version>
+    <version>2.20.1.2</version>
 
     <description>Extend java.net.URL with Apache Camel endpoint components and supported transports</description>
     <scm>
