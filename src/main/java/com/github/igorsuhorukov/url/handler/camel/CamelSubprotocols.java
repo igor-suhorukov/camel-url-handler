@@ -19,7 +19,7 @@ public class CamelSubprotocols {
         mapping.put("avro","camel-avro");
         mapping.put("aws-ddb","camel-aws");
         mapping.put("aws-ses","camel-aws");
-        mapping.put("aws-s3","/com.github.igor-suhorukov/camel-aws:LATEST");
+        mapping.put("aws-s3","/com.github.igor-suhorukov:camel-aws:LATEST");
         mapping.put("aws-swf","camel-aws");
         mapping.put("aws-sdb","camel-aws");
         mapping.put("aws-sns","camel-aws");

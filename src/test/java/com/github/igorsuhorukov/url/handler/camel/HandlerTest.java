@@ -39,7 +39,7 @@ public class HandlerTest {
         String fileName = UUID.randomUUID().toString();
 
         try {
-            URLConnection urlConnection = new URL("camel:/file://?fileName=" + fileName).openConnection();
+            URLConnection urlConnection = new URL("camel:/file://|-.xml?fileName=" + fileName).openConnection();
             try (OutputStream outputStream = urlConnection.getOutputStream()){
                 IOUtils.copy(new StringReader(expectedString), outputStream);
             }

@@ -25,7 +25,8 @@ public class HandleRequest<T> {
                 camelContext.start();
                 loadComponent(path, camelContext);
                 try {
-                    Endpoint endpoint = camelContext.getEndpoint(path);
+                    String endpointUrl = path.replaceAll("\\|-.*\\?", "?");
+                    Endpoint endpoint = camelContext.getEndpoint(endpointUrl);
                     endpoint.start();
                     try {
                         return camelAction.processRequest(camelContext, endpoint);
