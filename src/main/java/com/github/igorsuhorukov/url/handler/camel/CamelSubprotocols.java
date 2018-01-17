@@ -5,9 +5,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CamelSubprotocols {
-    public static final Map<String, String> PROTOCOL_MAPPING;
+
+    private static final String CAMEL_CORE = "camel-core";
+    private static final String CAMEL_SOLR = "camel-solr";
+    private static final String CAMEL_MAIL = "camel-mail";
+    private static final String CAMEL_FTP = "camel-ftp";
+    private static final String CAMEL_GAE = "camel-gae";
+    private static final String CAMEL_CXF = "camel-cxf";
+    private static final String CAMEL_AWS = "camel-aws";
+
+    static final Map<String, String> PROTOCOL_MAPPING;
+
     static {
-        HashMap<String, String> mapping = new HashMap<String, String>();
+        HashMap<String, String> mapping = new HashMap<>();
         mapping.put("ahc","camel-ahc");
         mapping.put("ahc-wss","camel-ahc-ws");
         mapping.put("ahc-ws","camel-ahc-ws");
@@ -17,15 +27,15 @@ public class CamelSubprotocols {
         mapping.put("atmosphere-websocket","camel-atmosphere-websocket");
         mapping.put("atom","camel-atom");
         mapping.put("avro","camel-avro");
-        mapping.put("aws-ddb","camel-aws");
-        mapping.put("aws-ses","camel-aws");
+        mapping.put("aws-ddb", CAMEL_AWS);
+        mapping.put("aws-ses", CAMEL_AWS);
         mapping.put("aws-s3","/com.github.igor-suhorukov:camel-aws:LATEST");
-        mapping.put("aws-swf","camel-aws");
-        mapping.put("aws-sdb","camel-aws");
-        mapping.put("aws-sns","camel-aws");
-        mapping.put("aws-ec2","camel-aws");
-        mapping.put("aws-cw","camel-aws");
-        mapping.put("aws-sqs","camel-aws");
+        mapping.put("aws-swf", CAMEL_AWS);
+        mapping.put("aws-sdb", CAMEL_AWS);
+        mapping.put("aws-sns", CAMEL_AWS);
+        mapping.put("aws-ec2", CAMEL_AWS);
+        mapping.put("aws-cw", CAMEL_AWS);
+        mapping.put("aws-sqs", CAMEL_AWS);
         mapping.put("beanstalk","camel-beanstalk");
         mapping.put("bean-validator","camel-bean-validator");
         mapping.put("box","camel-box");
@@ -39,9 +49,9 @@ public class CamelSubprotocols {
         mapping.put("context","camel-context");
         mapping.put("couchdb","camel-couchdb");
         mapping.put("crypto","camel-crypto");
-        mapping.put("cxf","camel-cxf");
-        mapping.put("cxfrs","camel-cxf");
-        mapping.put("cxfbean","camel-cxf");
+        mapping.put("cxf", CAMEL_CXF);
+        mapping.put("cxfrs", CAMEL_CXF);
+        mapping.put("cxfbean", CAMEL_CXF);
         mapping.put("disruptor-vm","camel-disruptor");
         mapping.put("disruptor","camel-disruptor");
         mapping.put("dns","camel-dns");
@@ -57,15 +67,15 @@ public class CamelSubprotocols {
         mapping.put("flatpack","camel-flatpack");
         mapping.put("fop","camel-fop");
         mapping.put("freemarker","camel-freemarker");
-        mapping.put("ftp","camel-ftp");
-        mapping.put("ftps","camel-ftp");
-        mapping.put("sftp","camel-ftp");
-        mapping.put("gauth","camel-gae");
-        mapping.put("ghttp","camel-gae");
-        mapping.put("glogin","camel-gae");
-        mapping.put("gtask","camel-gae");
-        mapping.put("gmail","camel-gae");
-        mapping.put("ghttps","camel-gae");
+        mapping.put("ftp", CAMEL_FTP);
+        mapping.put("ftps", CAMEL_FTP);
+        mapping.put("sftp", CAMEL_FTP);
+        mapping.put("gauth", CAMEL_GAE);
+        mapping.put("ghttp", CAMEL_GAE);
+        mapping.put("glogin", CAMEL_GAE);
+        mapping.put("gtask", CAMEL_GAE);
+        mapping.put("gmail", CAMEL_GAE);
+        mapping.put("ghttps", CAMEL_GAE);
         mapping.put("ganglia","camel-ganglia");
         mapping.put("geocoder","camel-geocoder");
         mapping.put("git","camel-git");
@@ -110,12 +120,12 @@ public class CamelSubprotocols {
         mapping.put("krati","camel-krati");
         mapping.put("ldap","camel-ldap");
         mapping.put("lucene","camel-lucene");
-        mapping.put("imap","camel-mail");
-        mapping.put("pop3","camel-mail");
-        mapping.put("smtp","camel-mail");
-        mapping.put("pop3s","camel-mail");
-        mapping.put("imaps","camel-mail");
-        mapping.put("smtps","camel-mail");
+        mapping.put("imap", CAMEL_MAIL);
+        mapping.put("pop3", CAMEL_MAIL);
+        mapping.put("smtp", CAMEL_MAIL);
+        mapping.put("pop3s", CAMEL_MAIL);
+        mapping.put("imaps", CAMEL_MAIL);
+        mapping.put("smtps", CAMEL_MAIL);
         mapping.put("metrics","camel-metrics");
         mapping.put("mina","camel-mina");
         mapping.put("mina2","camel-mina2");
@@ -157,9 +167,9 @@ public class CamelSubprotocols {
         mapping.put("smpps","camel-smpp");
         mapping.put("smpp","camel-smpp");
         mapping.put("snmp","camel-snmp");
-        mapping.put("solr","camel-solr");
-        mapping.put("solrs","camel-solr");
-        mapping.put("solrCloud","camel-solr");
+        mapping.put("solr", CAMEL_SOLR);
+        mapping.put("solrs", CAMEL_SOLR);
+        mapping.put("solrCloud", CAMEL_SOLR);
         mapping.put("spark-rest","camel-spark-rest");
         mapping.put("splunk","camel-splunk");
         mapping.put("spring-event","camel-spring");
@@ -187,24 +197,27 @@ public class CamelSubprotocols {
         mapping.put("zookeeper","camel-zookeeper");
         mapping.put("webcam","/io.rhiot:camel-webcam:LATEST");
 
-        mapping.put("file","camel-core");
-        mapping.put("bean","camel-core");
-        mapping.put("browse","camel-core");
-        mapping.put("class","camel-core");
-        mapping.put("controlbus","camel-core");
-        mapping.put("dataformat","camel-core");
-        mapping.put("dataset","camel-core");
-        mapping.put("direct","camel-core");
-        mapping.put("direct-vm","camel-core");
-        mapping.put("language","camel-core");
-        mapping.put("properties","camel-core");
-        mapping.put("ref","camel-core");
-        mapping.put("rest","camel-core");
-        mapping.put("scheduler","camel-core");
-        mapping.put("timer","camel-core");
-        mapping.put("validation","camel-core");
-        mapping.put("vm","camel-core");
-        mapping.put("xslt","camel-core");
+        mapping.put("file", CAMEL_CORE);
+        mapping.put("bean", CAMEL_CORE);
+        mapping.put("browse", CAMEL_CORE);
+        mapping.put("class", CAMEL_CORE);
+        mapping.put("controlbus", CAMEL_CORE);
+        mapping.put("dataformat", CAMEL_CORE);
+        mapping.put("dataset", CAMEL_CORE);
+        mapping.put("direct", CAMEL_CORE);
+        mapping.put("direct-vm", CAMEL_CORE);
+        mapping.put("language", CAMEL_CORE);
+        mapping.put("properties", CAMEL_CORE);
+        mapping.put("ref", CAMEL_CORE);
+        mapping.put("rest", CAMEL_CORE);
+        mapping.put("scheduler", CAMEL_CORE);
+        mapping.put("timer", CAMEL_CORE);
+        mapping.put("validation", CAMEL_CORE);
+        mapping.put("vm", CAMEL_CORE);
+        mapping.put("xslt", CAMEL_CORE);
         PROTOCOL_MAPPING = Collections.unmodifiableMap(mapping);
+    }
+
+    private CamelSubprotocols() {
     }
 }
