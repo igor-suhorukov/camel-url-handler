@@ -8,6 +8,10 @@ import java.util.List;
 
 public class ClassLoaderUtils {
 
+    private ClassLoaderUtils() {
+        throw new UnsupportedOperationException("utility class");
+    }
+
     public static ClassLoader loadModule(String moduleName) {
         try {
             String mavenRepository = System.getProperty("url.protocol.handler.mvn-repo");

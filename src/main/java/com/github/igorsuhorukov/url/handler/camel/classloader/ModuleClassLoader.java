@@ -17,9 +17,4 @@ public class ModuleClassLoader extends URLClassLoader{
     public ModuleClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
         super(urls, parent, factory);
     }
-
-    @Override
-    protected void addURL(URL url) {
-        super.addURL(url);
-    }
 }

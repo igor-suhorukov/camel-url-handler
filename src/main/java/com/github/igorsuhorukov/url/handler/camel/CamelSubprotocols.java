@@ -130,6 +130,7 @@ public class CamelSubprotocols {
         mapping.put("mina","camel-mina");
         mapping.put("mina2","camel-mina2");
         mapping.put("mongodb","camel-mongodb");
+        mapping.put("mpd","/com.github.igor-suhorukov:camel-mpd:LATEST");
         mapping.put("mqtt","camel-mqtt");
         mapping.put("msv","camel-msv");
         mapping.put("mustache","camel-mustache");
