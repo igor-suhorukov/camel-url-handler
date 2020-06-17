@@ -18,7 +18,7 @@ public class ClassLoaderUtils {
             List<URL> artifactUrlsCollection = mavenRepository == null|| mavenRepository.isEmpty() ?
                     MavenClassLoader.usingCentralRepo().getArtifactUrlsCollection(moduleName, null):
                     MavenClassLoader.using(mavenRepository).getArtifactUrlsCollection(moduleName, null);
-            URL[] classpath = artifactUrlsCollection.toArray(new URL[artifactUrlsCollection.size()]);
+            URL[] classpath = artifactUrlsCollection.toArray(new URL[0]);
             ClassLoader camelCoreClassLoader = CamelContext.class.getClassLoader();
             return new ModuleClassLoader(classpath, camelCoreClassLoader);
         } catch (Exception e) {
