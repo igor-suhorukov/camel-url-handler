@@ -4,6 +4,7 @@ import com.github.igorsuhorukov.url.handler.camel.classloader.ClassLoaderUtils;
 import org.apache.camel.CamelContext;
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultCamelContext;
+import org.apache.camel.spi.Registry;
 
 import java.io.IOException;
 import java.net.URL;
@@ -13,7 +14,7 @@ public class HandleRequest<T> {
 
     private ConcurrentHashMap<String, ClassLoader> camelModules = new ConcurrentHashMap<>();
 
-    public T handleRequest(URL url, CamelAction<T> camelAction) throws IOException {
+    public T handleRequest(URL url, Registry registry, CamelAction<T> camelAction) throws IOException {
         try {
             String path = getPath(url);
             String protocolArtifact = getArtifact(getProtocol(path));
@@ -21,7 +22,8 @@ public class HandleRequest<T> {
             ClassLoader moduleClassLoader = getModuleClassLoader(protocolArtifact);
             Thread.currentThread().setContextClassLoader(moduleClassLoader);
             try {
-                CamelContext camelContext = new DefaultCamelContext();
+                DefaultCamelContext camelContext = new DefaultCamelContext();
+                camelContext.setRegistry(registry);
                 camelContext.start();
                 loadComponent(path, camelContext);
                 try {
@@ -75,7 +77,7 @@ public class HandleRequest<T> {
     private String getArtifact(String protocol) {
         String module = CamelSubprotocols.PROTOCOL_MAPPING.get(protocol);
         if(module!=null){
-            return module.startsWith("/") ? module.substring(1) : String.format("org.apache.camel:%s:3.3.0", module);
+            return module.startsWith("/") ? module.substring(1) : String.format("org.apache.camel:%s:3.5.0", module);
         } else {
             throw new IllegalArgumentException(String.format("module for protocol '%s' not found", protocol));
         }

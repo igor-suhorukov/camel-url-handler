@@ -12,6 +12,7 @@ public class Handler extends URLStreamHandler {
 
     private static final int DEFAULT_DURATION = Integer.parseInt(System.getProperty("camelComponentTimeout","180"));
     private HandleRequest<InputStream> camelStreamHandler = new HandleRequest<>();
+    private RegistryStream registry = new RegistryStream();
 
     private InputStream extractContent(TypeConverter typeConverter, Endpoint endpoint){
 
@@ -57,16 +58,19 @@ public class Handler extends URLStreamHandler {
 
             @Override
             public InputStream getInputStream() throws IOException {
-                return camelStreamHandler.handleRequest(url, (camelContext, endpoint) ->
+                return camelStreamHandler.handleRequest(url, registry, (camelContext, endpoint) ->
                         extractContent(camelContext.getTypeConverter(), endpoint));
             }
 
             @Override
             public OutputStream getOutputStream() throws IOException {
+                if(url.toExternalForm().endsWith(":/registry")){
+                    return registry;
+                }
                 return new ByteArrayOutputStream(){
                     @Override
                     public void close() throws IOException {
-                        camelStreamHandler.handleRequest(url, (camelContext, endpoint) -> {
+                        camelStreamHandler.handleRequest(url, registry, (camelContext, endpoint) -> {
                             ProducerTemplate producerTemplate = camelContext.createProducerTemplate();
                             try {
                                 producerTemplate.sendBody(endpoint, toByteArray());
