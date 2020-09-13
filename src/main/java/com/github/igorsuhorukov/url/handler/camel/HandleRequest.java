@@ -77,7 +77,7 @@ public class HandleRequest<T> {
     private String getArtifact(String protocol) {
         String module = CamelSubprotocols.PROTOCOL_MAPPING.get(protocol);
         if(module!=null){
-            return module.startsWith("/") ? module.substring(1) : String.format("org.apache.camel:%s:3.5.0", module);
+            return module.startsWith("/") ? module.substring(1) : module;
         } else {
             throw new IllegalArgumentException(String.format("module for protocol '%s' not found", protocol));
         }
