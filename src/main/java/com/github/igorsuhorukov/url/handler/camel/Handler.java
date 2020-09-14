@@ -12,7 +12,7 @@ public class Handler extends URLStreamHandler {
 
     private static final int DEFAULT_DURATION = Integer.parseInt(System.getProperty("camelComponentTimeout","180"));
     private HandleRequest<InputStream> camelStreamHandler = new HandleRequest<>();
-    private RegistryStream registry = new RegistryStream();
+    protected RegistryStream registry = new RegistryStream();
 
     private InputStream extractContent(TypeConverter typeConverter, Endpoint endpoint){
 
@@ -71,17 +71,28 @@ public class Handler extends URLStreamHandler {
                     @Override
                     public void close() throws IOException {
                         camelStreamHandler.handleRequest(url, registry, (camelContext, endpoint) -> {
+                            Exception exception = null;
                             ProducerTemplate producerTemplate = camelContext.createProducerTemplate();
                             try {
                                 producerTemplate.sendBody(endpoint, toByteArray());
+                            } catch (Exception ex){
+                                exception = ex;
                             } finally {
                                 try {
                                     producerTemplate.stop();
                                 } catch (Exception e) {
-                                    throw new RuntimeException(e);
+                                    if(exception == null){
+                                        exception = e;
+                                    } else {
+                                        exception.addSuppressed(e);
+                                    }
                                 }
                             }
-                            return null;
+                            if(exception==null) {
+                                return null;
+                            } else {
+                                throw new RuntimeException(exception);
+                            }
                         });
                     }
                 };

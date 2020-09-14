@@ -1,17 +1,30 @@
 package com.github.igorsuhorukov.url.handler.camel;
 
-import com.github.igorsuhorukov.apache.commons.lang3.NotImplementedException;
 import org.apache.camel.RuntimeCamelException;
+import org.apache.camel.spi.BeanRepository;
 import org.apache.camel.spi.Registry;
-import org.apache.camel.support.DefaultRegistry;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-public class RegistryStream extends ByteArrayOutputStream implements Registry, Map<String, Object> {
-    private Registry registry = new DefaultRegistry();
+public class RegistryStream extends ByteArrayOutputStream implements Registry, Map<String, Object>,
+        Consumer<BeanRepository>, Supplier<List<BeanRepository>> {
+
+    protected final List<BeanRepository> repositories = new CopyOnWriteArrayList<>();
+    private Registry registry = new UrlHandlerDefaultRegistry(repositories);
+
+    @Override
+    public void accept(BeanRepository beanRepository) {
+        repositories.add(beanRepository);
+    }
+
+    @Override
+    public List<BeanRepository> get() {
+        return repositories;
+    }
 
     @Override
     public void bind(String id, Object bean) throws RuntimeCamelException {
